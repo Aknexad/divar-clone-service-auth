@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String       @id @default(uuid())
+  phone          String       @unique()
+  account_status String       @default("un_verify") //verify,un_verify ,blocks
+  otp            OTP?         @relation(fields: [OptId], references: [id])
+  OptId          String?      @unique()
+  refreshToken   RefreshToken @relation(fields: [refreshTokenId], references: [id])
+  refreshTokenId String
+  access_token   AcessToken   @relation(fields: [acessTokenId], references: [id])
+  acessTokenId   String
+  UserRole       UserRole[]
+}
+
+model OTP {
+  id         String   @id @default(uuid())
+  code       String
+  expiration DateTime
+  UserId     User?
+}
+
+// refresh token
+model RefreshToken {
+  id              String     @id @default(uuid())
+  token           String
+  expiration_date DateTime
+  User            User[]
+  accessToken     AcessToken @relation(fields: [acessTokenId], references: [id])
+  acessTokenId    String     @unique
+}
+
+// access token
+model AcessToken {
+  id              String        @id @default(uuid())
+  token           String
+  expiration_date DateTime
+  refreshTokenId  String
+  RefreshToken    RefreshToken?
+  User            User[]
+}
+
+model Roel {
+  id             String           @id @default(uuid())
+  name           String
+  UserRole       UserRole[]
+  RolePermission RolePermission[]
+}
+
+model Permission {
+  id             String           @id @default(uuid())
+  name           String           @unique()
+  description    String
+  RolePermission RolePermission[]
+}
+
+model UserRole {
+  id     String @id @default(uuid())
+  userId String
+  roelId String
+
+  user User @relation(fields: [userId], references: [id])
+  roel Roel @relation(fields: [roelId], references: [id])
+}
+
+model RolePermission {
+  id String @id @default(uuid())
+
+  role       Roel       @relation(fields: [roelId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  roelId       String
+  permissionId String
+}

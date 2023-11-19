@@ -1,0 +1,45 @@
+{
+  "name": "divar-clone-service-auth",
+  "version": "1.0.0",
+  "description": "authentication and authorization service",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "start": "npm run build && node ./dist/server.js",
+    "dev": "ts-node-dev ./src/server",
+    "build": "rimraf ./dist && tsc"
+  },
+  "keywords": [],
+  "author": "Aknexad",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aknexad/divar-clone-service-auth.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Aknexad/divar-clone-service-auth/issues"
+  },
+  "homepage": "https://github.com/Aknexad/divar-clone-service-auth#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "helmet": "^7.1.0",
+    "zod": "^3.22.4",
+    "zod-error": "^1.5.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.16",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.8",
+    "@types/node": "^20.9.0",
+    "@types/supertest": "^2.0.16",
+    "jest": "^29.7.0",
+    "prisma": "^5.5.2",
+    "rimraf": "^5.0.5",
+    "ts-jest": "^29.1.1",
+    "ts-node": "^10.9.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.2.2"
+  }
+}
