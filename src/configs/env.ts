@@ -8,9 +8,8 @@ dotEnv.config();
 const envSchema = z.object({
   PORT: z.string(),
   DATABASE_URL: z.string(),
-  NODE_ENV: z
-    .enum(['development', 'test', 'production'])
-    .default('development'),
+  RABBIT_MQ_URL: z.string(),
+  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
 });
 
 // SOME_NUMBER: z.string().regex(/^\\d+$/).transform(Number),
