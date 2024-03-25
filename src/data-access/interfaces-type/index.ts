@@ -7,7 +7,7 @@ export type CreteNewUserInput = {
 };
 
 export interface IUserRepository {
-  CreateNewUser(data: CreteNewUserInput): Promise<any>;
+  CreateNewUser(data: CreteNewUserInput): Promise<User>;
   FindUserByPhone(phone: string): Promise<User | null>;
   FindUserById(userId: string): Promise<User | null>;
   FindUserOtoByUserId(userId: string): Promise<any>;
@@ -15,3 +15,11 @@ export interface IUserRepository {
 
   UpdateUserStatus(userId: string, status: string): Promise<any>;
 }
+
+export type CreateTokensInput = {
+  userId: string;
+  accessToken: string;
+  refreshToken: string;
+  accessExpirationDate: Date | string;
+  refreshExpirationDate: Date | string;
+};

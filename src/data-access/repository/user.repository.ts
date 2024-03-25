@@ -8,7 +8,7 @@ class UserRepository implements IUserRepository {
   constructor() {}
 
   public async CreateNewUser(data: CreteNewUserInput) {
-    await prisma.user.create({
+    return await prisma.user.create({
       data: {
         phone: data.phone,
         otp: {
@@ -60,7 +60,7 @@ class UserRepository implements IUserRepository {
   }
 
   public async UpdateUserStatus(userId: string, status: string) {
-    await prisma.user.update({
+    return await prisma.user.update({
       where: {
         id: userId,
       },
@@ -76,4 +76,4 @@ class UserRepository implements IUserRepository {
   }
 }
 
-export default UserRepository;
+export { UserRepository };

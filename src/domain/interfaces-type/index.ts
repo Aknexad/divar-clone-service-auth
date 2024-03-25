@@ -1,7 +1,7 @@
-import {} from 'module';
+import { Channel } from 'amqplib';
 
 export interface IUerLogics {
-  Registering(phone: string): Promise<any>;
+  Registering(phone: string, channel: Channel): Promise<any>;
 
   verifyOtp(phone: string, otpCode: string): Promise<any>;
 

@@ -17,7 +17,7 @@ model User {
   otp            OTP?
   refreshToken   RefreshToken? @relation(fields: [refreshTokenId], references: [id])
   refreshTokenId String?
-  access_token   AcessToken?   @relation(fields: [acessTokenId], references: [id])
+  access_token   AccessToken?  @relation(fields: [acessTokenId], references: [id])
   acessTokenId   String?
   Subject        Subject?
 }
@@ -32,18 +32,20 @@ model OTP {
 
 // refresh token
 model RefreshToken {
-  id              String     @id @default(uuid())
+  id              String       @id @default(uuid())
   token           String
+  createion_date  DateTime     @default(now())
   expiration_date DateTime
   User            User[]
-  accessToken     AcessToken @relation(fields: [acessTokenId], references: [id])
-  acessTokenId    String     @unique
+  accessToken     AccessToken? @relation(fields: [acessTokenId], references: [id])
+  acessTokenId    String?      @unique
 }
 
 // access token
-model AcessToken {
+model AccessToken {
   id              String        @id @default(uuid())
   token           String
+  createion_date  DateTime      @default(now())
   expiration_date DateTime
   refreshTokenId  String
   RefreshToken    RefreshToken?

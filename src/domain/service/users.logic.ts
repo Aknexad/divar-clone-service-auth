@@ -1,16 +1,22 @@
+import { PublishSubscribe } from '@Aknexad/mq-hub';
+import { Channel } from 'amqplib';
+
 import { IUerLogics } from '../interfaces-type';
-import { IUserRepository } from '../../data-access/interfaces-type';
-import { appError, otp } from '../../utility';
+import { appError, otp, token } from '../../utility';
+import { repository } from '../../data-access';
+import { ENV } from '../../configs';
 
 class UsersLogic implements IUerLogics {
-  private userRepoInstance: IUserRepository;
+  private userRepository: repository.userRepository.UserRepository;
+  private publishSubscribe: PublishSubscribe;
 
-  constructor(UserRepo: new () => IUserRepository) {
-    this.userRepoInstance = new UserRepo();
+  constructor() {
+    this.userRepository = new repository.userRepository.UserRepository();
+    this.publishSubscribe = new PublishSubscribe();
   }
 
-  public async Registering(phone: string) {
-    const checkPhoneNumber = await this.userRepoInstance.FindUserByPhone(phone);
+  public async Registering(phone: string, channel: Channel) {
+    const checkPhoneNumber = await this.userRepository.FindUserByPhone(phone);
 
     if (checkPhoneNumber && checkPhoneNumber.account_status === 'verified') {
       throw new appError.AppError(
@@ -24,19 +30,28 @@ class UsersLogic implements IUerLogics {
     const otpCode = otp.generateOtp();
     const otpExcretionTime = otp.expiationDate(120);
 
-    await this.userRepoInstance.CreateNewUser({
+    const user = await this.userRepository.CreateNewUser({
       phone,
       otpCode,
       expiration: otpExcretionTime,
     });
 
     // send otp
+    await this.publishSubscribe.PublishMassage({
+      channel,
+      exchangeName: 'notifications',
+      bindingKey: 'notifications.send.otp',
+      massage: {
+        userId: user.id,
+        code: otpCode,
+      },
+    });
 
-    return;
+    return {};
   }
 
   public async verifyOtp(phone: string, otpCode: string) {
-    const user = await this.userRepoInstance.FindUserOtpByUserPhone(phone);
+    const user = await this.userRepository.FindUserOtpByUserPhone(phone);
 
     if (!user) {
       throw new appError.AppError(
@@ -47,7 +62,7 @@ class UsersLogic implements IUerLogics {
       );
     }
 
-    if (!user.opt) {
+    if (!user.otp) {
       throw new appError.AppError(
         appError.namesOfErrors.badRequest,
         appError.statusCode.BAD_REQUEST,
@@ -56,7 +71,7 @@ class UsersLogic implements IUerLogics {
       );
     }
 
-    if (user.opt.code !== otpCode) {
+    if (user.otp.code !== otpCode) {
       throw new appError.AppError(
         appError.namesOfErrors.badRequest,
         appError.statusCode.BAD_REQUEST,
@@ -65,7 +80,7 @@ class UsersLogic implements IUerLogics {
       );
     }
 
-    if (user.opt.expiration.getTime() < new Date().getTime()) {
+    if (user.otp.expiration.getTime() < new Date().getTime()) {
       throw new appError.AppError(
         appError.namesOfErrors.badRequest,
         appError.statusCode.BAD_REQUEST,
@@ -74,11 +89,30 @@ class UsersLogic implements IUerLogics {
       );
     }
 
-    await this.userRepoInstance.UpdateUserStatus(user.id, 'verified');
+    await this.userRepository.UpdateUserStatus(user.id, 'verified');
 
     // create access and refresh token
 
-    return;
+    const accessToken = token.generateAccessToken(
+      {
+        userId: user.id,
+      },
+      ENV.VALID_TIME_ACCESS_TOKEN
+    );
+
+    const refreshToken = token.generateRefreshToken(
+      {
+        userId: user.id,
+      },
+      ENV.VALID_TIME_REFRESH_TOKEN
+    );
+
+    // create token record in db
+
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 
   public async logIn(phone: string) {
@@ -90,4 +124,4 @@ class UsersLogic implements IUerLogics {
   }
 }
 
-export default UsersLogic;
+export { UsersLogic };

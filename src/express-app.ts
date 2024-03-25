@@ -3,15 +3,19 @@ import cors from 'cors';
 import helmet from 'helmet';
 
 import auth from './entry-points/api/auth';
+import otp from './entry-points/api/otp';
+import security from './entry-points/api/security';
 import { errorHandler, isOperationalError } from './middleware';
+import { Channel } from 'amqplib';
 
-export default async (app: Application) => {
+export default async (app: Application, channel: Channel) => {
   app.use(express.json());
   app.use(helmet());
   app.use(cors());
 
-  //const channel = await CreateChannel()
-  app.use('/advertisement', auth());
+  app.use('/auth', auth(channel));
+  app.use('/otp', otp(channel));
+  app.use('/security', security(channel));
 
   app.use(errorHandler);
 

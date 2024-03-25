@@ -1,15 +1,24 @@
 import express from 'express';
+import { AmqpConnection } from '@Aknexad/mq-hub';
 
 import expressApp from './express-app';
 import { ENV } from './configs';
+import { rabbitMq } from './utility';
 
-import { connectToDatabase } from './data-access/database-connection';
+const amqpConnection = new AmqpConnection();
 
 const startServer = async () => {
   const app = express();
 
-  await connectToDatabase(ENV.DATABASE_URL);
-  await expressApp(app);
+  const rabbitMqConnection = await amqpConnection.AmqpConnections(ENV.RABBIT_MQ_URL);
+
+  const channel = await amqpConnection.CreateChannel(rabbitMqConnection);
+
+  await rabbitMq.createExchangeAndQues(channel);
+
+  await expressApp(app, channel);
+
+  console.log('connect to RabbitMQ');
 
   app
     .listen(ENV.PORT, () => {
@@ -17,11 +26,20 @@ const startServer = async () => {
     })
     .on('error', err => {
       console.log(err);
+      amqpConnection.CLoseChannel();
+      amqpConnection.CloseConnection();
       process.exit();
     })
     .on('close', () => {
-      // channel.close();
+      amqpConnection.CLoseChannel();
+      amqpConnection.CloseConnection();
     });
+
+  rabbitMqConnection.on('error', async err => {
+    if (err === 'close') {
+      await amqpConnection.ReconnectionToRabbitMq(ENV.RABBIT_MQ_URL);
+    }
+  });
 };
 
 startServer();
