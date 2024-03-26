@@ -13,6 +13,7 @@ const envSchema = z.object({
   REFRESH_TOKEN_SECRET: z.string(),
   VALID_TIME_ACCESS_TOKEN: z.string(),
   VALID_TIME_REFRESH_TOKEN: z.string(),
+  VALID_TIME_OTP: z.string(),
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
 });
 

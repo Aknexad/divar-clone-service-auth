@@ -13,7 +13,7 @@ const createExchangeAndQues = async (channel: Channel) => {
     },
   });
 
-  const sendSms = await createExchange.AssertQueue(channel, 'update');
+  const sendSms = await createExchange.AssertQueue(channel, 'send-otp');
 
   await createExchange.BindingQueue(
     channel,

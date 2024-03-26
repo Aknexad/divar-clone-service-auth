@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { AnyZodObject } from 'zod';
-import { generateErrorMessage } from 'zod-error';
+import { AnyZodObject, ZodError } from 'zod';
 
 export const validation =
   (schema: AnyZodObject) => async (req: Request, res: Response, next: NextFunction) => {
@@ -10,10 +9,27 @@ export const validation =
         query: req.query,
         params: req.params,
       });
+
       return next();
     } catch (error: any) {
-      const formateError = generateErrorMessage(error.issues);
+      // const formateError = generateErrorMessage(error.issues, {});
 
-      return res.status(400).json(formateError);
+      if (error instanceof ZodError) {
+        const customErrors = error.errors.map((err: any) => {
+          return {
+            code: err.code,
+            message: err.message,
+            expected: err.expected,
+            received: err.received,
+            fail: err.path[0],
+          };
+        });
+
+        return res.status(200).json({
+          statusCode: 2100,
+          message: 'validation error',
+          respond: customErrors,
+        });
+      }
     }
   };

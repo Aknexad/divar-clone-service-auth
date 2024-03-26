@@ -23,14 +23,19 @@ export default function advertisementRoute(channel: Channel): Router {
     }
   );
 
-  router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const result = await userLogic.logIn(req.body.phone);
-      res.status(200).json({ message: '', statusCode: 2000, response: result });
-    } catch (error) {
-      next(error);
+  router.post(
+    '/login',
+    validationHandler.validation(validation.logIn),
+    async (req: Request, res: Response, next: NextFunction) => {
+      try {
+        const { phone, code } = req.body;
+        const result = await userLogic.logIn(phone, code);
+        res.status(200).json({ message: '', statusCode: 2000, response: result });
+      } catch (error) {
+        next(error);
+      }
     }
-  });
+  );
 
   router.delete('/logout', async (req: Request, res: Response, next: NextFunction) => {
     try {

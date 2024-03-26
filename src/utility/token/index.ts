@@ -14,3 +14,9 @@ export const generateRefreshToken = (payload: any, validTime: string) => {
   });
   return refreshToken;
 };
+
+export const expirationDate = (validTime: string) => {
+  const currentDate = new Date().getTime();
+  const expiration = currentDate + parseInt(validTime);
+  return new Date(expiration).toISOString();
+};
