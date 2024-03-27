@@ -59,6 +59,21 @@ class UserRepository implements IUserRepository {
     });
   }
 
+  public async FIndUserTokensByIdAndValue(userId: string, value: string) {
+    return await prisma.user.findUnique({
+      where: {
+        id: userId,
+        access_token: {
+          token: value,
+        },
+      },
+      include: {
+        access_token: true,
+        refreshToken: true,
+      },
+    });
+  }
+
   public async UpdateUserStatus(userId: string, status: string) {
     return await prisma.user.update({
       where: {

@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+
 import { ENV } from '../../configs';
 
 export const generateAccessToken = (payload: any, validTime: string) => {
@@ -13,6 +14,22 @@ export const generateRefreshToken = (payload: any, validTime: string) => {
     expiresIn: validTime,
   });
   return refreshToken;
+};
+
+export const validateAccessToken = (token: string): jwt.JwtPayload | null => {
+  try {
+    return jwt.verify(token, ENV.ACCESS_TOKEN_SECRET) as jwt.JwtPayload;
+  } catch (error) {
+    return null;
+  }
+};
+
+export const validateRefreshToken = (token: string) => {
+  try {
+    return jwt.verify(token, ENV.REFRESH_TOKEN_SECRET) as jwt.JwtPayload;
+  } catch (error) {
+    return null;
+  }
 };
 
 export const expirationDate = (validTime: string) => {

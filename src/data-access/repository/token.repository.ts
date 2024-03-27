@@ -42,6 +42,17 @@ class TokenRepository {
       accessToken,
     };
   }
+
+  public async DeleteTokens(refreshTokenId: string, accessTokenId: string) {
+    return await prisma.refreshToken.delete({
+      where: {
+        id: refreshTokenId,
+        accessToken: {
+          id: accessTokenId,
+        },
+      },
+    });
+  }
 }
 
 export { TokenRepository };

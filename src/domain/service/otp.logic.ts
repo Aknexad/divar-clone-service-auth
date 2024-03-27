@@ -69,12 +69,7 @@ class OtpLogic {
       ENV.VALID_TIME_ACCESS_TOKEN
     );
 
-    const refreshToken = token.generateRefreshToken(
-      {
-        userId: user.id,
-      },
-      ENV.VALID_TIME_REFRESH_TOKEN
-    );
+    const refreshToken = token.generateRefreshToken({}, ENV.VALID_TIME_REFRESH_TOKEN);
 
     // create token record in db
 
